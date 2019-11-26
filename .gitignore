@@ -2,7 +2,7 @@
 *.log
 /target
 /bin
-
+/.idea
 #Java
 */**/*.class
 */**/*.log
@@ -10,3 +10,4 @@
 */**/.idea/
 */**/out/
 */**/*.iml
+*/**/target
