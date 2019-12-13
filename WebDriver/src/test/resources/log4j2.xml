@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="WARN">
+    <Properties>
+        <property name="LOG_DIR">logs</property>
+        <property name="ARCHIVE_LOG_DIR">${LOG_DIR}/archive</property>
+        <property name="pattern_console">
+            %d{HH:mm:ss} [%t] %-5level %logger{1} - %msg%n
+        </property>
+        <property name="pattern_file">
+            %d{dd MMM yyyy HH:mm:ss.SSS} [%t] %-5level %logger{5} - %msg%n
+        </property>
+    </Properties>
+    <Appenders>
+        <Console name="Console">
+            <PatternLayout>
+                <Pattern>%d %p %c{2} [%t] %l %m%n</Pattern>
+            </PatternLayout>
+        </Console>
+        <File name="File" fileName="target/logs/github-automation.log">
+            <PatternLayout>
+                <Pattern>%d %p %c{2} [%t] %m%n</Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Logger name="Log_Console" level="debug" additivity="false">
+            <Appender-ref ref="Console"/>
+        </Logger>
+        <Root level="info">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+</Configuration>

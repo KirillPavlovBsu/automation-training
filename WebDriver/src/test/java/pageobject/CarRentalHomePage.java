@@ -1,28 +1,30 @@
 package pageobject;
 
+import model.SearchFieldParams;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.PageFactory;
 import org.openqa.selenium.support.ui.ExpectedConditions;
 import org.openqa.selenium.support.ui.WebDriverWait;
 
-import java.awt.dnd.DropTarget;
-
-public class CarRentalHomePage {
-    private final int TIMEOUT_SECONDS = 30;
+public class CarRentalHomePage extends AbstractPage{
 
     private final static String HOMEPAGE_URL="https://www.carrentals.com/";
     private final static String CITY_PICKUP="//*[@id=\"pickup_location\"]";
     private final static String DATE_PICKUP="//*[@id=\"startDateInput\"]";
     private final static String DATE_DROPOFF="//*[@id=\"endDateInput\"]";
     private final static String SEARCH_BUTTON="//*[@id=\"cr-wizard-1\"]/div[1]/form/button";
-    private final static String DROPOFF_CITY_CHECKBOX="//*[@id=\"drop-off-checkbox'\"]";
+    private final static String DROPOFF_CITY_CHECKBOX="//*[@id=\"drop-off-checkbox-label\"]";
     private final static String DROPOFF_CITY="//*[@id=\"dropoff_location\"]";
+    private final static String OUTSIDE_FIELD="//*[@id=\"in-farefinder-tagline\"]";
+    private final static String SELECT_CITY="//*[@id=\"aria-option-0\"]";
+    private final static String BUTTON_CLEAR="//*[@id=\"cr-wizard-1\"]/div/form/div[2]/div[2]/button";
 
-    private WebDriver driver;
+    private final Logger logger = LogManager.getRootLogger();
 
     @FindBy(xpath = CITY_PICKUP)
     private WebElement cityPickup;
@@ -42,47 +44,66 @@ public class CarRentalHomePage {
     @FindBy(xpath = DROPOFF_CITY_CHECKBOX)
     private WebElement dropoffCityCheckbox;
 
+    @FindBy(xpath = OUTSIDE_FIELD)
+    private WebElement outsideField;
+
+    @FindBy(xpath = SELECT_CITY)
+    private WebElement selectCity;
+
+    @FindBy(xpath = BUTTON_CLEAR)
+    private WebElement buttonClear;
+
     public CarRentalHomePage(WebDriver driver){
-        this.driver = driver;
+        super(driver);
         PageFactory.initElements(driver,this);
     }
 
-    public CarRentalHomePage openHomePage(){
-        driver.get(HOMEPAGE_URL);
+    @Override
+    public CarRentalHomePage openPage(){
+        driver.navigate().to(HOMEPAGE_URL);
+        logger.info("Page opened");
         return this;
     }
 
-    public SearchCarrentalResult searchCar(SearchCarrental params){
-        cityPickup.sendKeys(params.getDatePickup());
-        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DATE_PICKUP)));
+
+    public SearchCarrentalResult searchCar(SearchFieldParams params){
+        cityPickup.sendKeys(params.getPickupCity());
+        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(SELECT_CITY)));
+        selectCity.click();
         datePickup.clear();
         datePickup.sendKeys(params.getDatePickup());
-        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DATE_DROPOFF)));
         dateDropoff.clear();
         dateDropoff.sendKeys(params.getDateDropoff());
+        outsideField.click();
         new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(SEARCH_BUTTON)));
         searchButton.click();
+        logger.info("Performed search with pickup city ["+ params.getDatePickup() + "] and rent date from "
+                + params.getDatePickup()+ " to " + params.getDateDropoff());
         return new SearchCarrentalResult(driver,params);
     }
 
-    public SearchCarrentalResult searchCarWithDropoff(SearchCarrental params){
-        cityPickup.clear();
+    public SearchCarrentalResult searchCarWithDropoff(SearchFieldParams params) {
         cityPickup.sendKeys(params.getPickupCity());
-        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DROPOFF_CITY_CHECKBOX)));
+        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(SELECT_CITY)));
+        selectCity.click();
         dropoffCityCheckbox.click();
         new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DROPOFF_CITY)));
-        dropoffCity.clear();
         dropoffCity.sendKeys(params.getDropoffCity());
-        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DATE_PICKUP)));
+        buttonClear.click();
+        dropoffCity.sendKeys(params.getDropoffCity());
+        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(SELECT_CITY)));
+        selectCity.click();
         datePickup.clear();
         datePickup.sendKeys(params.getDatePickup());
-        new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(DATE_DROPOFF)));
         dateDropoff.clear();
         dateDropoff.sendKeys(params.getDateDropoff());
+        outsideField.click();
         new WebDriverWait(driver, TIMEOUT_SECONDS).until(ExpectedConditions.presenceOfElementLocated(By.xpath(SEARCH_BUTTON)));
         searchButton.click();
+        logger.info("Performed search with pickup city ["+ params.getDatePickup() + "] and dropoff city ["
+                + params.getDropoffCity()+"] and rent date from ["
+                + params.getDatePickup()+ "] to [" + params.getDateDropoff()+"]");
         return new SearchCarrentalResult(driver,params);
     }
-
 
 }

@@ -1,35 +1,18 @@
 package test;
 
-import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.chrome.ChromeDriver;
 import org.testng.Assert;
-import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
-import pageobject.SearchCarrental;
+import model.SearchFieldParams;
 import pageobject.CarRentalHomePage;
+import service.ParamsCreator;
 
-public class WebDriverCarRental {
-    private String datePickup="28/11/2019";
-    private String dateDropoff="28/12/2019";
-    private WebDriver driver;
-
-    @BeforeMethod(alwaysRun = true)
-    public void browserSetup(){
-        driver = new ChromeDriver();
-    }
-
-    @AfterMethod(alwaysRun = true)
-    public void browserTearDown(){
-        driver.quit();
-        driver = null;
-    }
+public class WebDriverCarRental extends CommonConditions {
 
     @Test
     public void searchCarTest(){
-        SearchCarrental params = new SearchCarrental("Tallinn",datePickup,dateDropoff,"Tokyo");
+        SearchFieldParams params = ParamsCreator.withCredentialsFromProperty();
         Boolean isValidationPassed = new CarRentalHomePage(driver)
-                .openHomePage()
+                .openPage()
                 .searchCar(params)
                 .isCarPageVisible(driver);
         Assert.assertTrue(isValidationPassed);
@@ -37,12 +20,12 @@ public class WebDriverCarRental {
 
     @Test
     public void searchCarInTokyoTest(){
-        SearchCarrental params = new SearchCarrental("Tallinn",datePickup,dateDropoff,"Tokyo");
-        Boolean isValidationPassed = new CarRentalHomePage(driver)
-                .openHomePage()
+        SearchFieldParams params = ParamsCreator.withCredentialsFromProperty();
+        Boolean isValidationFailed = new CarRentalHomePage(driver)
+                .openPage()
                 .searchCarWithDropoff(params)
-                .isCarPageVisible(driver);
-        Assert.assertTrue(isValidationPassed);
+                .getResultAlert(driver);
+        Assert.assertTrue(isValidationFailed);
     }
 
 
